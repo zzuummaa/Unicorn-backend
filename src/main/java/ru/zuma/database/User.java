@@ -3,6 +3,7 @@ package ru.zuma.database;
 import javax.persistence.*;
 
 @Entity
+@Table(name = "users")
 public class User {
 
     @Id

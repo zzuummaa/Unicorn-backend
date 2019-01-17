@@ -3,24 +3,19 @@ package ru.zuma.database;
 import javax.persistence.*;
 
 @Entity
-public class UserUnicorns {
-
+@Table(name = "unicorns")
+public class Unicorn {
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
-    @Column(name = "user_unicorns_id")
+    @Column(name = "unicorn_id")
     private Integer id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
 
     private String date;
 
-    public UserUnicorns() {
+    public Unicorn() {
     }
 
-    public UserUnicorns(User user, String date) {
-        this.user = user;
+    public Unicorn(String date) {
         this.date = date;
     }
 
@@ -38,13 +33,5 @@ public class UserUnicorns {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }

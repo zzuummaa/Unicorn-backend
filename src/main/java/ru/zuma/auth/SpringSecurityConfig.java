@@ -44,12 +44,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(final HttpSecurity http) throws Exception {
         final TokenAuthenticationFilter tokenFilter = new TokenAuthenticationFilter(entryPoint, userRepository);
 
-        http.authorizeRequests()
+        http.csrf().disable()
+            .authorizeRequests()
             .anyRequest().authenticated()
             .and()
             .httpBasic()
             .authenticationEntryPoint(entryPoint);
-            //.addFilterAfter(tokenFilter, BasicAuthenticationFilter.class);
+
+        http.addFilterAfter(tokenFilter, BasicAuthenticationFilter.class);
     }
 
     public PasswordEncoder passwordEncoder() {

@@ -1,8 +1,14 @@
 package ru.zuma.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class ExceptionResponse {
     private Integer status;
@@ -41,5 +47,11 @@ public class ExceptionResponse {
 
     public ResponseEntity<ExceptionResponse> toEntity() {
         return ResponseEntity.status(HttpStatus.valueOf(status)).body(this);
+    }
+
+    public void write(HttpServletResponse response) throws IOException {
+        response.setStatus(status);
+        PrintWriter writer = response.getWriter();
+        writer.println(new ObjectMapper().writeValueAsString(this));
     }
 }

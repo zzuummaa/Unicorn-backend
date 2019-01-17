@@ -52,15 +52,14 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
             final User user = userRepository.findByAccessToken(accessToken);
             if (user == null) {
                 entryPoint.commence(httpRequest, httpResponse, new SessionAuthenticationException("Unknown access token"));
+                return;
             }
 
             final UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(user, null, null);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-
-            chain.doFilter(request, response);
-        } else {
-            entryPoint.commence(httpRequest, httpResponse, new SessionAuthenticationException("Authentication required"));
         }
+
+        chain.doFilter(request, response);
     }
 }

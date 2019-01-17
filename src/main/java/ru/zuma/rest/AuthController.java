@@ -1,8 +1,11 @@
 package ru.zuma.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import ru.zuma.auth.MyBasicAuthenticationEntryPoint;
 import ru.zuma.database.UserRepository;
+import ru.zuma.rest.model.ExceptionResponse;
+import ru.zuma.rest.model.OkResponse;
 import ru.zuma.rest.model.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,13 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.UUID;
 
 @Controller
 public class AuthController {
-
-    private long cookieVal = (long) (Math.random() * Long.MAX_VALUE/2);
-
     private final UserRepository userRepository;
     private final MyBasicAuthenticationEntryPoint entryPoint;
 
@@ -31,23 +32,17 @@ public class AuthController {
         this.entryPoint = entryPoint;
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<Void> handle(Exception ex,
-                                         HttpServletRequest request, HttpServletResponse response) {
-        if (ex instanceof NullPointerException) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-
     @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
-    public ResponseEntity<User> register(@RequestBody User user, HttpServletResponse response) {
-        if (user == null || user.getAndroidId() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @PreAuthorize("permitAll()")
+    public ResponseEntity register(@RequestBody User user, HttpServletResponse response) throws IOException {
+        if (user.getAndroidId() == null) {
+            return new ExceptionResponse("Invalid JSON format").toEntity();
         }
 
         ru.zuma.database.User founded = userRepository.findFirstByAndroidId(user.getAndroidId());
-        if (founded != null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (founded != null) {
+            return new ExceptionResponse("Android ID already registered").toEntity();
+        }
 
         ru.zuma.database.User databaseUser = new ru.zuma.database.User();
         String accessToken = UUID.randomUUID().toString();
@@ -56,19 +51,22 @@ public class AuthController {
         userRepository.save(databaseUser);
 
         response.addHeader(entryPoint.getAccessTokenHeader(), accessToken);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new OkResponse().toEntity();
     }
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
-    public ResponseEntity<User> login(@RequestBody User user, HttpServletResponse response) {
-        if (user == null || user.getAndroidId() == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @PreAuthorize("permitAll()")
+    public ResponseEntity login(@RequestBody User user, HttpServletResponse response) throws IOException {
+        if (user.getAndroidId() == null) {
+            return new ExceptionResponse("Invalid JSON format").toEntity();
         }
 
         ru.zuma.database.User founded = userRepository.findFirstByAndroidId(user.getAndroidId());
-        if (founded == null) return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if (founded == null) {
+            return new ExceptionResponse("Unknown android ID").toEntity();
+        }
 
         response.addHeader(entryPoint.getAccessTokenHeader(), founded.getAccessToken());
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new OkResponse().toEntity();
     }
 }

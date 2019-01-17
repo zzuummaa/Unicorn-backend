@@ -14,6 +14,6 @@ public class GreetingService {
     public ResponseEntity get() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        return ResponseEntity.ok("G'day, " + user.getAccessToken() + "!");
+        return ResponseEntity.ok("G'day, " + user.getAccessToken());
     }
 }

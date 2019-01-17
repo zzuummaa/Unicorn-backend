@@ -1,7 +1,9 @@
 package ru.zuma.database;
 
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface UserUnicornRepository extends CrudRepository<UserUnicorn, Integer> {
-    UserUnicorn findFirstByUserUnicornId(UserUnicornId userUnicornId);
+import java.util.List;
+
+public interface UserUnicornRepository extends JpaRepository<UserUnicorn, UserUnicornId> {
+    List<UserUnicorn> findByUserUnicornId_User(User user);
 }

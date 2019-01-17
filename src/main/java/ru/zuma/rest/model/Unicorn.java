@@ -1,5 +1,7 @@
 package ru.zuma.rest.model;
 
+import ru.zuma.database.UserUnicorn;
+
 public class Unicorn {
     private String date;
     private String imageURL;

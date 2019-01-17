@@ -17,6 +17,8 @@ import ru.zuma.rest.model.OkResponse;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 public class UnicornController {
@@ -62,15 +64,18 @@ public class UnicornController {
     public ResponseEntity getCollection(HttpServletResponse response) {
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        String date = LocalDate.now().format(DateTimeFormatter.ofPattern("MMdd"));
-        Unicorn unicorn = unicornRepository.findByDate(date);
-        if (unicorn == null) {
+        List<UserUnicorn> userUnicorns = userUnicornRepository.findByUserUnicornId_User(user);
+        if (userUnicorns == null) {
             return new ExceptionResponse("Daily unicorn not found").toEntity();
         }
 
-        UserUnicorn userUnicorn = new UserUnicorn(user, unicorn);
-        userUnicornRepository.save(userUnicorn);
+        List<ru.zuma.rest.model.Unicorn> unicorns = new ArrayList<>();
+        for (UserUnicorn userUnicorn: userUnicorns) {
+            String date = userUnicorn.getUserUnicornId().getUnicorn().getDate();
+            String url  = appProperties.getImageServerURL() + date + ".jpg";
+            unicorns.add(new ru.zuma.rest.model.Unicorn(date, url));
+        }
 
-        return new OkResponse().toEntity();
+        return ResponseEntity.status(HttpStatus.OK).body(unicorns);
     }
 }

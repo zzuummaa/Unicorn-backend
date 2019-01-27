@@ -1,6 +1,7 @@
 package ru.zuma.rest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -30,8 +31,8 @@ public class AuthController {
 
     @RequestMapping(value = "/auth/register", method = RequestMethod.POST)
     @PreAuthorize("permitAll()")
-    public ResponseEntity register(@RequestBody User user, HttpServletResponse response) throws IOException {
-        if (user.getAndroidId() == null) {
+    public ResponseEntity register(@RequestBody(required = false) User user, HttpServletResponse response) throws IOException {
+        if (user == null || user.getAndroidId() == null) {
             return new ExceptionResponse("Invalid JSON format").toEntity();
         }
 
@@ -52,14 +53,16 @@ public class AuthController {
 
     @RequestMapping(value = "/auth/login", method = RequestMethod.POST)
     @PreAuthorize("permitAll()")
-    public ResponseEntity login(@RequestBody User user, HttpServletResponse response) throws IOException {
-        if (user.getAndroidId() == null) {
+    public ResponseEntity login(@RequestBody(required = false) User user, HttpServletResponse response) throws IOException {
+        if (user == null || user.getAndroidId() == null) {
             return new ExceptionResponse("Invalid JSON format").toEntity();
         }
 
         ru.zuma.database.User founded = userRepository.findFirstByAndroidId(user.getAndroidId());
         if (founded == null) {
-            return new ExceptionResponse("Unknown android ID").toEntity();
+            return new ExceptionResponse(
+                    HttpStatus.NON_AUTHORITATIVE_INFORMATION,
+                    "Unknown android ID").toEntity();
         }
 
         response.addHeader(entryPoint.getAccessTokenHeader(), founded.getAccessToken());

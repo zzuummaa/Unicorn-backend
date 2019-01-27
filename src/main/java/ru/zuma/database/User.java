@@ -1,10 +1,12 @@
 package ru.zuma.database;
 
+import ru.zuma.auth.UserDetailsMOC;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User extends UserDetailsMOC {
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

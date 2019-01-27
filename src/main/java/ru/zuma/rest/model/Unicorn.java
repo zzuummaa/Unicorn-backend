@@ -1,6 +1,6 @@
 package ru.zuma.rest.model;
 
-import ru.zuma.database.UserUnicorn;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Unicorn {
     private String date;
@@ -22,6 +22,7 @@ public class Unicorn {
         this.date = date;
     }
 
+    @JsonProperty("image_url")
     public String getImageURL() {
         return imageURL;
     }

@@ -1,6 +1,8 @@
 package ru.zuma.rest.model;
 
 import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.HashMap;
 import java.util.Map;
 

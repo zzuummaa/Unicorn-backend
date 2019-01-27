@@ -58,8 +58,10 @@ public class TokenAuthenticationFilter extends GenericFilterBean {
             final UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(user, null, null);
             SecurityContextHolder.getContext().setAuthentication(authentication);
-        }
 
-        chain.doFilter(request, response);
+            chain.doFilter(request, response);
+        } else {
+            entryPoint.commence(httpRequest, httpResponse, new SessionAuthenticationException("Authentication required"));
+        }
     }
 }
